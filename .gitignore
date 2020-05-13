@@ -1,7 +1,7 @@
-vs2015/Release/*
-vs2015/Debug/*
-vs2015/x64/*
-vs2015/.vs/*
+build/Release/*
+build/Debug/*
+build/x64/*
+build/.vs/*
 archive/*
 *.opensdf
 *.opendb

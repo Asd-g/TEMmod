@@ -108,7 +108,7 @@ calc_map_3(const uint8_t* srcp, uint8_t* dstp, uint8_t* buff, int src_pitch,
         p1 = p2;
         p2 = p2 == end ? orig : p2 + buff_pitch;
         dstp += dst_pitch;
-        srcp += src_pitch * (y < height - 2 ? 1 : 0);
+        srcp += static_cast<int64_t>(src_pitch) * (y < height - 2 ? 1 : 0);
     }
 }
 
@@ -157,8 +157,8 @@ calc_map_4(const uint8_t* srcp, uint8_t* dstp, uint8_t* buff, int src_pitch,
     line_copy(p3, srcp, width);
     srcp += src_pitch;
 
-    int16_t scale = sc > 0 ? (int16_t)(sc * 0.01 * 3 * (1 << 16) + 0.5) :
-                             (int16_t)(255.0 / 158.1 * 0.01 * 3 * (1 << 16) + 0.5);
+    int16_t scale = sc > 0 ? (int16_t)(sc * 0.01 * 3 * (static_cast<int64_t>(1) << 16) + 0.5) :
+                             (int16_t)(255.0 / 158.1 * 0.01 * 3 * (static_cast<int64_t>(1) << 16) + 0.5);
     __declspec(align(16)) int16_t ar_thresh[8];
     __declspec(align(16)) int16_t ar_scale[8];
     for (int i = 0; i < 8; i++) {
@@ -229,7 +229,7 @@ calc_map_4(const uint8_t* srcp, uint8_t* dstp, uint8_t* buff, int src_pitch,
             }
             _mm_store_si128((__m128i*)(dstp + x), _mm_packus_epi16(sumx[0], sumx[1]));
         }
-        srcp += src_pitch * (y < height - 3);
+        srcp += static_cast<int64_t>(src_pitch) * (y < height - 3);
         dstp += dst_pitch;
         p0 = p1;
         p1 = p2;
@@ -255,7 +255,7 @@ calc_map_5(const uint8_t* srcp, uint8_t* dstp, uint8_t* buff, int src_pitch,
     line_copy(p1, srcp, width);
     srcp += src_pitch;
 
-    int16_t scale = (int16_t)((sc > 0 ? sc : 0.25) * (1 << 8) + 0.5);
+    int16_t scale = (int16_t)((sc > 0 ? sc : 0.25) * (static_cast<int64_t>(1) << 8) + 0.5);
 
     __declspec(align(16)) int16_t ar_thresh[8];
     __declspec(align(16)) int16_t ar_scale[8];
@@ -366,7 +366,7 @@ calc_map_5(const uint8_t* srcp, uint8_t* dstp, uint8_t* buff, int src_pitch,
         p1 = p2;
         p2 = p2 == end ? orig : p2 + buff_pitch;
         dstp += dst_pitch;
-        srcp += src_pitch * (y < height - 2 ? 1 : 0);
+        srcp += static_cast<int64_t>(src_pitch) * (y < height - 2 ? 1 : 0);
     }
 }
 
@@ -387,7 +387,7 @@ calc_map_1(const uint8_t* srcp, uint8_t* dstp, uint8_t* buff, int src_pitch,
         for (int x = 1; x < width - 1; x++) {
             int ix = p1[x + 1] - p1[x - 1];
             int iy = p0[x] - p2[x];
-            int temp = (int)(sqrt((ix * ix + iy * iy) * 0.25) * scale + 0.5); 
+            int temp = (int)(sqrt((static_cast<int64_t>(ix) * ix + static_cast<int64_t>(iy) * iy) * 0.25) * scale + 0.5);
             if (temp > 255) temp = 255;
             dstp[x] = temp;
         }
@@ -438,13 +438,13 @@ calc_map_2(const uint8_t* srcp, uint8_t* dstp, uint8_t* buff, int src_pitch,
     const uint8_t *p4 = p3 + src_pitch;
     const float scale = sc > 0 ? sc : (float)(255.0 / 158.1);
 
-    memset(dstp, 0, dst_pitch * 2);
-    dstp += 2 * dst_pitch;
+    memset(dstp, 0, static_cast<int64_t>(dst_pitch) * 2);
+    dstp += 2 * static_cast<int64_t>(dst_pitch);
     for (int y = 2; y < height - 2; y++) {
         for (int x = 2; x < width - 2; x++) {
             int ix = 12 * (p2[x - 2] - p2[x + 2]) + 74 * (p2[x + 1] - p2[x - 1]);
             int iy = 12 * (p4[x] - p0[x]) + 74 * (p1[x] - p3[x]);
-            int temp = (int)(sqrt((ix * ix + iy * iy) * 0.0001f) * scale + 0.5f);
+            int temp = (int)(sqrt((static_cast<int64_t>(ix) * ix + static_cast<int64_t>(iy) * iy) * static_cast<int64_t>(0.0001f)) * scale + 0.5f);
             dstp[x] =  temp > 255 ? 255 : temp;
         }
         p0 += src_pitch;
@@ -454,7 +454,7 @@ calc_map_2(const uint8_t* srcp, uint8_t* dstp, uint8_t* buff, int src_pitch,
         p4 += src_pitch;
         dstp += dst_pitch;
     }
-    memset(dstp, 0, dst_pitch * 2);
+    memset(dstp, 0, static_cast<int64_t>(dst_pitch) * 2);
 }
 
 
@@ -469,8 +469,8 @@ calc_map_2t(const uint8_t* srcp, uint8_t* dstp, uint8_t* buff, int src_pitch,
     const uint8_t *p3 = p2 + src_pitch;
     const uint8_t *p4 = p3 + src_pitch;
 
-    memset(dstp, 0, dst_pitch * 2);
-    dstp += 2 * dst_pitch;
+    memset(dstp, 0, static_cast<int64_t>(dst_pitch) * 2);
+    dstp += 2 * static_cast<int64_t>(dst_pitch);
     for (int y = 2; y < height - 2; y++) {
         for (int x = 2; x < width - 2; x++) {
             int ix = 12 * (p2[x - 2] - p2[x + 2]) + 74 * (p2[x + 1] - p2[x - 1]);
@@ -484,7 +484,7 @@ calc_map_2t(const uint8_t* srcp, uint8_t* dstp, uint8_t* buff, int src_pitch,
         p4 += src_pitch;
         dstp += dst_pitch;
     }
-    memset(dstp, 0, dst_pitch * 2);
+    memset(dstp, 0, static_cast<int64_t>(dst_pitch) * 2);
 }
 
 const calc_map_func calc_maps[] = {

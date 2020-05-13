@@ -32,7 +32,7 @@ static void __stdcall
 invert_plane(uint8_t* d, int dst_pitch, int height)
 {
     unsigned* dstp = (unsigned*)d;
-    size_t size = height * dst_pitch / sizeof(unsigned);
+    size_t size = static_cast<int64_t>(height) * dst_pitch / sizeof(unsigned);
 
     while(size--) {
         *dstp = ~*dstp++;
@@ -49,6 +49,7 @@ class TEMmod : public GenericVideoFilter {
     int buff_pitch;
     int type;
     float scale;
+    bool has_at_least_v8;
 
     calc_map_func calc_map;
     link_planes_func link_planes;
@@ -65,6 +66,9 @@ TEMmod::TEMmod(PClip c, double thy, double thc, int tp, int chroma, int lnk,
                bool inv, float sc, IScriptEnvironment* env)
     : GenericVideoFilter(c), link(lnk), invert(inv), type(tp), scale(sc)
 {
+    has_at_least_v8 = true;
+    try { env->CheckVersion(8); } catch (const AvisynthError&) { has_at_least_v8 = false; }
+
     if (!vi.IsPlanar()) {
         env->ThrowError("TEMmod: Planar format only.");
     }
@@ -117,7 +121,7 @@ TEMmod::TEMmod(PClip c, double thy, double thc, int tp, int chroma, int lnk,
     }
 
     buff_pitch = ((vi.width + 47) / 16) * 16;
-    buff = (uint8_t*)_aligned_malloc(buff_pitch * (type * 2 + 1), 16);
+    buff = (uint8_t*)_aligned_malloc(static_cast<int64_t>(buff_pitch) * (type * static_cast<int64_t>(2) + 1), 16);
     if (!buff) {
         env->ThrowError("TEMmod: failed to allocate buffer.");
     }
@@ -135,7 +139,8 @@ PVideoFrame __stdcall TEMmod::GetFrame(int n, IScriptEnvironment* env)
     const int planes[3] = {PLANAR_Y, PLANAR_U, PLANAR_V};
 
     PVideoFrame src = child->GetFrame(n, env);
-    PVideoFrame dst = env->NewVideoFrame(vi);
+    PVideoFrame dst;
+    if (has_at_least_v8) dst = env->NewVideoFrameP(vi, &src); else dst = env->NewVideoFrame(vi);
 
     for (int i = 0; i < 3; i++) {
         if (process[i] == 0) {
@@ -147,7 +152,7 @@ PVideoFrame __stdcall TEMmod::GetFrame(int n, IScriptEnvironment* env)
         int height = src->GetHeight(p);
 
         if (process[i] == 2) {
-            memset(dstp, 0, dst_pitch * height);
+            memset(dstp, 0, dst_pitch * static_cast<int64_t>(height));
             continue;
         }
         int src_pitch = src->GetPitch(p);

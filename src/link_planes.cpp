@@ -92,10 +92,10 @@ static void __stdcall link_y_to_uv_420(PVideoFrame& dst)
 
     for (int y = 0; y < height; y++) {
         for (int x = 0; x < width; x += 16) {
-            __m128i xmm0 = _mm_load_si128((__m128i*)(y0 + 2 * x));
-            __m128i xmm1 = _mm_load_si128((__m128i*)(y0 + 2 * x + 16));
-            __m128i xmm2 = _mm_load_si128((__m128i*)(y1 + 2 * x));
-            __m128i xmm3 = _mm_load_si128((__m128i*)(y1 + 2 * x + 16));
+            __m128i xmm0 = _mm_load_si128((__m128i*)(y0 + static_cast<int64_t>(2) * x));
+            __m128i xmm1 = _mm_load_si128((__m128i*)(y0 + 2 * static_cast<int64_t>(x) + 16));
+            __m128i xmm2 = _mm_load_si128((__m128i*)(y1 + 2 * static_cast<int64_t>(x)));
+            __m128i xmm3 = _mm_load_si128((__m128i*)(y1 + 2 * static_cast<int64_t>(x) + 16));
             xmm0 = _mm_packs_epi16(_mm_or_si128(xmm0, xmm2), _mm_or_si128(xmm1, xmm3));
             xmm0 = _mm_xor_si128(_mm_cmpeq_epi8(xmm0, zero), all1);
             xmm1 = _mm_load_si128((__m128i*)(u0 + x));
@@ -137,19 +137,19 @@ static void __stdcall link_all_420(PVideoFrame& dst)
             val1 = _mm_unpackhi_epi8(val0, val0);
             val0 = _mm_unpacklo_epi8(val0, val0);
 
-            xmm0 = _mm_load_si128((__m128i*)(y0 + 2 * x));
-            xmm1 = _mm_load_si128((__m128i*)(y0 + 2 * x + 16));
+            xmm0 = _mm_load_si128((__m128i*)(y0 + static_cast<int64_t>(2) * x));
+            xmm1 = _mm_load_si128((__m128i*)(y0 + static_cast<int64_t>(2) * x + 16));
             val2 = _mm_or_si128(val0, xmm0);
             val3 = _mm_or_si128(val1, xmm1);
-            _mm_store_si128((__m128i*)(y0 + 2 * x), val2);
-            _mm_store_si128((__m128i*)(y0 + 2 * x + 16), val3);
+            _mm_store_si128((__m128i*)(y0 + static_cast<int64_t>(2) * x), val2);
+            _mm_store_si128((__m128i*)(y0 + static_cast<int64_t>(2) * x + 16), val3);
 
-            xmm0 = _mm_load_si128((__m128i*)(y1 + 2 * x));
-            xmm1 = _mm_load_si128((__m128i*)(y1 + 2 * x + 16));
+            xmm0 = _mm_load_si128((__m128i*)(y1 + static_cast<int64_t>(2) * x));
+            xmm1 = _mm_load_si128((__m128i*)(y1 + static_cast<int64_t>(2) * x + 16));
             val2 = _mm_or_si128(val2, xmm0);
             val3 = _mm_or_si128(val3, xmm1);
-            _mm_store_si128((__m128i*)(y1 + 2 * x), _mm_or_si128(val0, xmm0));
-            _mm_store_si128((__m128i*)(y1 + 2 * x + 16), _mm_or_si128(val1, xmm1));
+            _mm_store_si128((__m128i*)(y1 + static_cast<int64_t>(2) * x), _mm_or_si128(val0, xmm0));
+            _mm_store_si128((__m128i*)(y1 + static_cast<int64_t>(2) * x + 16), _mm_or_si128(val1, xmm1));
 
             val0 = _mm_packs_epi16(val2, val3);
             val0 = _mm_xor_si128(all1, _mm_cmpeq_epi8(val0, zero));
@@ -182,8 +182,8 @@ static void __stdcall link_y_to_uv_422(PVideoFrame& dst)
 
     for (int y = 0; y < height; y++) {
         for (int x = 0; x < width; x += 16) {
-            __m128i xmm0 = _mm_load_si128((__m128i*)(y0 + 2 * x));
-            __m128i xmm1 = _mm_load_si128((__m128i*)(y0 + 2 * x + 16));
+            __m128i xmm0 = _mm_load_si128((__m128i*)(y0 + static_cast<int64_t>(2) * x));
+            __m128i xmm1 = _mm_load_si128((__m128i*)(y0 + static_cast<int64_t>(2) * x + 16));
             xmm0 = _mm_packs_epi16(xmm0, xmm1);
             xmm0 = _mm_xor_si128(_mm_cmpeq_epi8(xmm0, zero), all1);
             xmm1 = _mm_load_si128((__m128i*)(u0 + x));
@@ -217,8 +217,8 @@ static void __stdcall link_all_422(PVideoFrame& dst)
     for (int y = 0; y < height; y++) {
         for (int x = 0; x < width; x += 16) {
             __m128i xmmy0, xmmy1, xmmu, xmmv, val0, val1;
-            xmmy0 = _mm_load_si128((__m128i*)(y0 + 2 * x));
-            xmmy1 = _mm_load_si128((__m128i*)(y0 + 2 * x + 16));
+            xmmy0 = _mm_load_si128((__m128i*)(y0 + static_cast<int64_t>(2) * x));
+            xmmy1 = _mm_load_si128((__m128i*)(y0 + static_cast<int64_t>(2) * x + 16));
             xmmu  = _mm_load_si128((__m128i*)(u0 + x));
             xmmv  = _mm_load_si128((__m128i*)(v0 + x));
             val0 = _mm_or_si128(xmmu, xmmv);
@@ -226,8 +226,8 @@ static void __stdcall link_all_422(PVideoFrame& dst)
             val0 = _mm_unpacklo_epi8(val0, val0);
             val0 = _mm_or_si128(xmmy0, val0);
             val1 = _mm_or_si128(xmmy1, val1);
-            _mm_store_si128((__m128i*)(y0 + 2 * x), val0);
-            _mm_store_si128((__m128i*)(y0 + 2 * x + 16), val1);
+            _mm_store_si128((__m128i*)(y0 + static_cast<int64_t>(2) * x), val0);
+            _mm_store_si128((__m128i*)(y0 + static_cast<int64_t>(2) * x + 16), val1);
             val0 = _mm_packs_epi16(val0, val1);
             val0 = _mm_xor_si128(all1, _mm_cmpeq_epi8(val0, zero));
             _mm_store_si128((__m128i*)(u0 + x), val0);
@@ -258,10 +258,10 @@ static void __stdcall link_y_to_uv_411(PVideoFrame& dst)
 
     for (int y = 0; y < height; y++) {
         for (int x = 0; x < width; x += 16) {
-            __m128i xmm0 = _mm_load_si128((__m128i*)(y0 + 4 * x));
-            __m128i xmm1 = _mm_load_si128((__m128i*)(y0 + 4 * x + 16));
-            __m128i xmm2 = _mm_load_si128((__m128i*)(y0 + 4 * x + 32));
-            __m128i xmm3 = _mm_load_si128((__m128i*)(y0 + 4 * x + 48));
+            __m128i xmm0 = _mm_load_si128((__m128i*)(y0 + static_cast<int64_t>(4) * x));
+            __m128i xmm1 = _mm_load_si128((__m128i*)(y0 + static_cast<int64_t>(4) * x + 16));
+            __m128i xmm2 = _mm_load_si128((__m128i*)(y0 + static_cast<int64_t>(4) * x + 32));
+            __m128i xmm3 = _mm_load_si128((__m128i*)(y0 + static_cast<int64_t>(4) * x + 48));
             xmm0 = _mm_packs_epi32(xmm0, xmm1);
             xmm1 = _mm_packs_epi32(xmm2, xmm3);
             xmm0 = _mm_packs_epi16(xmm0, xmm1);
@@ -307,21 +307,21 @@ static void __stdcall link_all_411(PVideoFrame& dst)
             val3 = _mm_unpackhi_epi16(val2, val2);
             val2 = _mm_unpacklo_epi16(val2, val2);
 
-            xmm0 = _mm_load_si128((__m128i*)(y0 + 4 * x));
+            xmm0 = _mm_load_si128((__m128i*)(y0 + static_cast<int64_t>(4) * x));
             val0 = _mm_or_si128(val0, xmm0);
-            _mm_store_si128((__m128i*)(y0 + 4 * x), val0);
+            _mm_store_si128((__m128i*)(y0 + static_cast<int64_t>(4) * x), val0);
 
-            xmm0 = _mm_load_si128((__m128i*)(y0 + 4 * x + 16));
+            xmm0 = _mm_load_si128((__m128i*)(y0 + static_cast<int64_t>(4) * x + 16));
             val1 = _mm_or_si128(val1, xmm0);
-            _mm_store_si128((__m128i*)(y0 + 4 * x + 16), val1);
+            _mm_store_si128((__m128i*)(y0 + static_cast<int64_t>(4) * x + 16), val1);
 
-            xmm0 = _mm_load_si128((__m128i*)(y0 + 4 * x + 32));
+            xmm0 = _mm_load_si128((__m128i*)(y0 + static_cast<int64_t>(4) * x + 32));
             val2 = _mm_or_si128(val2, xmm0);
-            _mm_store_si128((__m128i*)(y0 + 4 * x + 326), val2);
+            _mm_store_si128((__m128i*)(y0 + static_cast<int64_t>(4) * x + 326), val2);
 
-            xmm0 = _mm_load_si128((__m128i*)(y0 + 4 * x + 48));
+            xmm0 = _mm_load_si128((__m128i*)(y0 + static_cast<int64_t>(4) * x + 48));
             val3 = _mm_or_si128(val3, xmm0);
-            _mm_store_si128((__m128i*)(y0 + 4 * x + 48), val3);
+            _mm_store_si128((__m128i*)(y0 + static_cast<int64_t>(4) * x + 48), val3);
 
             val0 = _mm_packs_epi32(val0, val1);
             val1 = _mm_packs_epi32(val2, val3);
