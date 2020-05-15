@@ -11,7 +11,7 @@ Info:
 
 Requirement:
     Avisynth 2.6 alpha 4 or later.
-    Visual C++ Redistributable Package for Visual Studio 2015
+    Visual C++ Redistributable Package for Visual Studio 2019
     SSE2 capable CPU
 
 
